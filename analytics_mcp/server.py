@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
+import logging
+import os
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.INFO)
+
 """Entry point for the Google Analytics MCP server."""
 
 from analytics_mcp.coordinator import mcp
@@ -27,13 +34,12 @@ from analytics_mcp.tools.reporting import realtime  # noqa: F401
 from analytics_mcp.tools.reporting import core  # noqa: F401
 
 
-def run_server() -> None:
-    """Runs the server.
-
-    Serves as the entrypoint for the 'runmcp' command.
-    """
-    mcp.run()
-
-
 if __name__ == "__main__":
-    run_server()
+    logger.info(f"🚀 MCP server started on port {os.getenv('PORT', 8080)}")
+    asyncio.run(
+        mcp.run_async(
+            transport="streamable-http",
+            host="0.0.0.0",
+            port=os.getenv("PORT", 8080),
+        )
+    )
